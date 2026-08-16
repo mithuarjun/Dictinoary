@@ -86,6 +86,22 @@ export const historyRepository = {
     });
   },
 
+  async removeFromHistory(wordId: number): Promise<void> {
+    if (isWeb) {
+      try {
+        const stored = await AsyncStorage.getItem(WEB_HISTORY_KEY);
+        let ids: number[] = stored ? JSON.parse(stored) : [];
+        ids = ids.filter((id) => id !== wordId);
+        await AsyncStorage.setItem(WEB_HISTORY_KEY, JSON.stringify(ids));
+      } catch {}
+      return;
+    }
+
+    const db = await getDatabase();
+    if (!db) return;
+    await db.runAsync('DELETE FROM search_history WHERE word_id = ?', [wordId]);
+  },
+
   async getHistory(): Promise<SearchHistoryEntry[]> {
     if (isWeb) {
       try {

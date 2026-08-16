@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -90,6 +91,37 @@ export function HomeScreen() {
     },
     [navigation]
   );
+
+  const handleClearAllRecent = useCallback(() => {
+    Alert.alert(
+      'Clear Recent Searches',
+      'Are you sure you want to clear your recent searches?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear All',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await historyRepository.clearHistory();
+              setRecentHistory([]);
+            } catch (err) {
+              console.error('[HomeScreen] clearHistory error:', err);
+            }
+          },
+        },
+      ]
+    );
+  }, []);
+
+  const handleRemoveRecentWord = useCallback(async (wordId: number) => {
+    try {
+      await historyRepository.removeFromHistory(wordId);
+      setRecentHistory((prev) => prev.filter((item) => item.wordId !== wordId));
+    } catch (err) {
+      console.error('[HomeScreen] removeFromHistory error:', err);
+    }
+  }, []);
 
   const showSuggestions = query.trim().length > 0;
 
@@ -194,16 +226,34 @@ export function HomeScreen() {
                     </ThemedText>
 
                     {recentHistory.length > 0 && (
-                      <TouchableOpacity
-                        onPress={() => navigation.navigate('History')}
-                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                        accessibilityRole="button"
-                        accessibilityLabel="View all search history"
-                      >
-                        <ThemedText style={[styles.viewAllText, { color: c.primary }]}>
-                          View All
-                        </ThemedText>
-                      </TouchableOpacity>
+                      <View style={styles.actionsRow}>
+                        <TouchableOpacity
+                          onPress={handleClearAllRecent}
+                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                          accessibilityRole="button"
+                          accessibilityLabel="Clear all recent searches"
+                          style={styles.actionBtn}
+                        >
+                          <Ionicons name="trash-outline" size={13} color={c.error} style={{ marginRight: 3 }} />
+                          <ThemedText style={[styles.actionBtnText, { color: c.error }]}>
+                            Clear
+                          </ThemedText>
+                        </TouchableOpacity>
+
+                        <ThemedText style={{ color: c.border, marginHorizontal: 6 }}>•</ThemedText>
+
+                        <TouchableOpacity
+                          onPress={() => navigation.navigate('History')}
+                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                          accessibilityRole="button"
+                          accessibilityLabel="View all search history"
+                          style={styles.actionBtn}
+                        >
+                          <ThemedText style={[styles.actionBtnText, { color: c.primary }]}>
+                            View All
+                          </ThemedText>
+                        </TouchableOpacity>
+                      </View>
                     )}
                   </View>
 
@@ -212,7 +262,7 @@ export function HomeScreen() {
                       {recentHistory.map((item) => {
                         const cleanMeaning = formatTopHindiMeanings(item.word.meaningHindi, 1);
                         return (
-                          <TouchableOpacity
+                          <View
                             key={item.id}
                             style={[
                               styles.chip,
@@ -222,33 +272,48 @@ export function HomeScreen() {
                               },
                               shadow.sm,
                             ]}
-                            onPress={() => handleRecentSelect(item.wordId, item.word.word)}
-                            activeOpacity={0.7}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Recent word: ${item.word.word}`}
                           >
-                            <Ionicons
-                              name="time-outline"
-                              size={13}
-                              color={c.primary}
-                              style={{ marginRight: 5 }}
-                            />
-                            <ThemedText
-                              style={[styles.chipText, { color: c.text }]}
-                              numberOfLines={1}
-                              semiBold
+                            <TouchableOpacity
+                              style={styles.chipContent}
+                              onPress={() => handleRecentSelect(item.wordId, item.word.word)}
+                              activeOpacity={0.7}
+                              accessibilityRole="button"
+                              accessibilityLabel={`Recent word: ${item.word.word}`}
                             >
-                              {item.word.word}
-                            </ThemedText>
-                            {cleanMeaning ? (
+                              <Ionicons
+                                name="time-outline"
+                                size={13}
+                                color={c.primary}
+                                style={{ marginRight: 5 }}
+                              />
                               <ThemedText
-                                style={[styles.chipHindi, { color: c.textTertiary }]}
+                                style={[styles.chipText, { color: c.text }]}
                                 numberOfLines={1}
+                                semiBold
                               >
-                                • {cleanMeaning}
+                                {item.word.word}
                               </ThemedText>
-                            ) : null}
-                          </TouchableOpacity>
+                              {cleanMeaning ? (
+                                <ThemedText
+                                  style={[styles.chipHindi, { color: c.textTertiary }]}
+                                  numberOfLines={1}
+                                >
+                                  • {cleanMeaning}
+                                </ThemedText>
+                              ) : null}
+                            </TouchableOpacity>
+
+                            {/* Individual Delete Button */}
+                            <TouchableOpacity
+                              onPress={() => handleRemoveRecentWord(item.wordId)}
+                              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                              style={styles.chipCloseBtn}
+                              accessibilityRole="button"
+                              accessibilityLabel={`Remove ${item.word.word} from recent searches`}
+                            >
+                              <Ionicons name="close" size={13} color={c.textTertiary} />
+                            </TouchableOpacity>
+                          </View>
                         );
                       })}
                     </View>
@@ -400,7 +465,15 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     lineHeight: 15,
   },
-  viewAllText: {
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionBtnText: {
     fontSize: 12,
     fontWeight: fontWeight.semiBold,
   },
@@ -412,11 +485,16 @@ const styles = StyleSheet.create({
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing['3'],
-    paddingVertical: 6,
+    paddingLeft: spacing['3'],
+    paddingRight: 6,
+    paddingVertical: 4,
     borderRadius: borderRadius.full,
     borderWidth: 1,
     maxWidth: '100%',
+  },
+  chipContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   chipText: {
     fontSize: 13,
@@ -427,6 +505,11 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     marginLeft: 3,
     maxWidth: 90,
+  },
+  chipCloseBtn: {
+    padding: 3,
+    marginLeft: 4,
+    borderRadius: borderRadius.full,
   },
   emptyRecentBox: {
     borderRadius: borderRadius.md,
