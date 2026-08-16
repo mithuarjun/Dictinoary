@@ -223,7 +223,7 @@ export function WordDetailScreen() {
                 variant="hindi"
                 style={{ color: c.hindi, fontSize: 22, lineHeight: 32, fontWeight: fontWeight.semiBold }}
               >
-                {formatTopHindiMeanings(word.meaningHindi, 4)}
+                {formatTopHindiMeanings(word.meaningHindi, 999)}
               </ThemedText>
               {word.definition ? (
                 <ThemedText

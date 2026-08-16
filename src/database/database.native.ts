@@ -21,9 +21,32 @@ export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
   }
 
   const fileInfo = await FileSystem.getInfoAsync(sqliteFile);
-  // If file doesn't exist or is tiny, copy the pre-built 65k dictionary database
-  if (!fileInfo.exists || (fileInfo.size && fileInfo.size < 1000000)) {
-    console.log('[Native DB] Copying pre-built dictionary.db from assets...');
+  let copyNeeded = !fileInfo.exists || (fileInfo.size && fileInfo.size < 1000000);
+
+  if (!copyNeeded) {
+    try {
+      const checkDb = await SQLite.openDatabaseAsync(DB_FILENAME);
+      const tableCheck = await checkDb.getFirstAsync<{ count: number }>(
+        "SELECT COUNT(*) as count FROM sqlite_master WHERE type='table' AND name='verb_forms'"
+      );
+      if (!tableCheck || tableCheck.count === 0) {
+        copyNeeded = true;
+      } else {
+        const vfCount = await checkDb.getFirstAsync<{ count: number }>(
+          'SELECT COUNT(*) as count FROM verb_forms'
+        );
+        if (!vfCount || vfCount.count === 0) {
+          copyNeeded = true;
+        }
+      }
+      await checkDb.closeAsync();
+    } catch {
+      copyNeeded = true;
+    }
+  }
+
+  if (copyNeeded) {
+    console.log('[Native DB] Copying/updating dictionary.db from assets...');
     try {
       const asset = Asset.fromModule(require('../../assets/dictionary.db'));
       await asset.downloadAsync();
@@ -32,10 +55,10 @@ export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
           from: asset.localUri,
           to: sqliteFile,
         });
-        console.log('[Native DB] Copied dictionary.db successfully.');
+        console.log('[Native DB] Copied updated dictionary.db successfully.');
       }
     } catch (err) {
-      console.warn('[Native DB] Asset copy failed, initializing empty db:', err);
+      console.warn('[Native DB] Asset copy failed:', err);
     }
   }
 
@@ -60,6 +83,20 @@ export async function initializeDatabase(): Promise<void> {
       is_linguistic_entry INTEGER NOT NULL DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS verb_forms (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      v1 TEXT NOT NULL,
+      v1_normalized TEXT NOT NULL,
+      v2 TEXT NOT NULL,
+      v2_normalized TEXT NOT NULL,
+      v3 TEXT NOT NULL,
+      v3_normalized TEXT NOT NULL,
+      v4 TEXT NOT NULL,
+      v4_normalized TEXT NOT NULL,
+      v5 TEXT NOT NULL,
+      v5_normalized TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS favorites (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       word_id INTEGER NOT NULL REFERENCES words(id) ON DELETE CASCADE,
@@ -76,6 +113,11 @@ export async function initializeDatabase(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_words_normalized ON words(word_normalized);
     CREATE INDEX IF NOT EXISTS idx_words_word ON words(word COLLATE NOCASE);
     CREATE INDEX IF NOT EXISTS idx_words_linguistic ON words(is_linguistic_entry);
+    CREATE INDEX IF NOT EXISTS idx_vf_v1 ON verb_forms(v1_normalized);
+    CREATE INDEX IF NOT EXISTS idx_vf_v2 ON verb_forms(v2_normalized);
+    CREATE INDEX IF NOT EXISTS idx_vf_v3 ON verb_forms(v3_normalized);
+    CREATE INDEX IF NOT EXISTS idx_vf_v4 ON verb_forms(v4_normalized);
+    CREATE INDEX IF NOT EXISTS idx_vf_v5 ON verb_forms(v5_normalized);
     CREATE INDEX IF NOT EXISTS idx_favorites_word_id ON favorites(word_id);
     CREATE INDEX IF NOT EXISTS idx_history_searched_at ON search_history(searched_at DESC);
   `);

@@ -9,10 +9,12 @@ import {
   useWindowDimensions,
   ActivityIndicator,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 
 import { useTheme } from '../hooks/useTheme';
 import { useSearch } from '../hooks/useSearch';
@@ -78,7 +80,7 @@ export function SearchResultsScreen() {
         translucent
       />
       <SafeAreaView
-        style={[styles.flex, { paddingTop: Platform.OS === 'android' ? 12 : 0 }]}
+        style={styles.flex}
         edges={['top', 'left', 'right']}
       >
         <View
@@ -87,15 +89,32 @@ export function SearchResultsScreen() {
             { borderBottomColor: c.divider, backgroundColor: c.surface },
           ]}
         >
-          <View style={[styles.searchInner, { maxWidth: contentWidth, width: '100%', alignSelf: 'center' }]}>
-            <SearchBar
-              value={searchText}
-              onChangeText={handleChangeText}
-              onSubmit={() => {}}
-              onClear={handleClear}
-              placeholder="Search an English word..."
-              autoFocus={!initialQuery}
-            />
+          <View style={[styles.searchInner, { maxWidth: contentWidth, width: '100%', alignSelf: 'center', flexDirection: 'row', alignItems: 'center' }]}>
+            <TouchableOpacity
+              onPress={() => {
+                if (navigation.canGoBack()) {
+                  navigation.goBack();
+                } else {
+                  (navigation as any).navigate('MainTabs', { screen: 'Home' });
+                }
+              }}
+              style={{ marginRight: 10, padding: 4 }}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessibilityLabel="Back to home"
+              accessibilityRole="button"
+            >
+              <Ionicons name="arrow-back" size={24} color={c.text} />
+            </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+              <SearchBar
+                value={searchText}
+                onChangeText={handleChangeText}
+                onSubmit={() => {}}
+                onClear={handleClear}
+                placeholder="Search an English word..."
+                autoFocus={!initialQuery}
+              />
+            </View>
           </View>
         </View>
 

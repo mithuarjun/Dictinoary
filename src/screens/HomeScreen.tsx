@@ -11,6 +11,7 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -133,7 +134,7 @@ export function HomeScreen() {
         translucent
       />
       <SafeAreaView
-        style={[styles.flex, { paddingTop: Platform.OS === 'android' ? 12 : 0 }]}
+        style={styles.flex}
         edges={['top', 'left', 'right']}
       >
         <ScrollView
@@ -147,13 +148,20 @@ export function HomeScreen() {
           <View style={[styles.inner, { maxWidth: contentWidth, alignSelf: 'center', width: '100%' }]}>
             {/* Header / Branding */}
             <View style={styles.header}>
-              <View style={styles.titleContainer}>
-                <ThemedText style={[styles.appTitle, { color: c.primary }]}>
-                  Gem Dictionary
-                </ThemedText>
-                <ThemedText style={[styles.appSubtitle, { color: c.textSecondary }]}>
-                  English → Hindi Offline Dictionary
-                </ThemedText>
+              <View style={styles.brandingRow}>
+                <Image
+                  source={require('../../assets/logo.png')}
+                  style={styles.appLogo}
+                  resizeMode="cover"
+                />
+                <View style={styles.titleContainer}>
+                  <ThemedText style={[styles.appTitle, { color: c.primary }]}>
+                    Gem Dictionary
+                  </ThemedText>
+                  <ThemedText style={[styles.appSubtitle, { color: c.textSecondary }]}>
+                    English → Hindi Offline Dictionary
+                  </ThemedText>
+                </View>
               </View>
 
               <TouchableOpacity
@@ -330,6 +338,32 @@ export function HomeScreen() {
                   )}
                 </View>
 
+                {/* Quick Access Card: Verb Forms */}
+                <TouchableOpacity
+                  style={[
+                    styles.quickAccessCard,
+                    { backgroundColor: c.card, borderColor: c.border, marginBottom: spacing['3'] },
+                    shadow.sm,
+                  ]}
+                  onPress={() => navigation.navigate('VerbForms')}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel="Open Verb Forms (V1–V5)"
+                >
+                  <View style={[styles.quickAccessIcon, { backgroundColor: '#3B82F615' }]}>
+                    <Ionicons name="book" size={18} color="#3B82F6" />
+                  </View>
+                  <View style={styles.quickAccessContent}>
+                    <ThemedText style={[styles.quickAccessTitle, { color: c.text }]} semiBold>
+                      Verb Forms (V1 – V5)
+                    </ThemedText>
+                    <ThemedText style={[styles.quickAccessSubtitle, { color: c.textSecondary }]}>
+                      Search irregular & regular verb forms with Hindi meanings
+                    </ThemedText>
+                  </View>
+                  <Ionicons name="chevron-forward" size={16} color={c.textTertiary} />
+                </TouchableOpacity>
+
                 {/* Quick Access Card: Search History */}
                 <TouchableOpacity
                   style={[
@@ -388,6 +422,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing['4'],
     marginTop: spacing['1'],
+  },
+  brandingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: spacing['2'],
+  },
+  appLogo: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    marginRight: 10,
   },
   titleContainer: {
     flex: 1,

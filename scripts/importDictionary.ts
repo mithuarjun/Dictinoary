@@ -9,8 +9,9 @@ import path from 'path';
 import readline from 'readline';
 import Database from 'better-sqlite3';
 
-const CSV_PATH = path.join(__dirname, '..', 'src', 'data', 'English-Hindi Dictionary.csv');
-const OUTPUT_DB_PATH = path.join(__dirname, '..', 'assets', 'dictionary.db');
+const PROJECT_ROOT = process.cwd();
+const CSV_PATH = path.join(PROJECT_ROOT, 'src', 'data', 'English-Hindi Dictionary.csv');
+const OUTPUT_DB_PATH = path.join(PROJECT_ROOT, 'assets', 'dictionary.db');
 
 interface RawCsvRecord {
   eword: string;
@@ -129,6 +130,20 @@ async function runImport() {
       is_linguistic_entry INTEGER NOT NULL DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS verb_forms (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      v1 TEXT NOT NULL,
+      v1_normalized TEXT NOT NULL,
+      v2 TEXT NOT NULL,
+      v2_normalized TEXT NOT NULL,
+      v3 TEXT NOT NULL,
+      v3_normalized TEXT NOT NULL,
+      v4 TEXT NOT NULL,
+      v4_normalized TEXT NOT NULL,
+      v5 TEXT NOT NULL,
+      v5_normalized TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS favorites (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       word_id INTEGER NOT NULL REFERENCES words(id) ON DELETE CASCADE,
@@ -145,6 +160,11 @@ async function runImport() {
     CREATE INDEX IF NOT EXISTS idx_words_normalized ON words(word_normalized);
     CREATE INDEX IF NOT EXISTS idx_words_word ON words(word COLLATE NOCASE);
     CREATE INDEX IF NOT EXISTS idx_words_linguistic ON words(is_linguistic_entry);
+    CREATE INDEX IF NOT EXISTS idx_vf_v1 ON verb_forms(v1_normalized);
+    CREATE INDEX IF NOT EXISTS idx_vf_v2 ON verb_forms(v2_normalized);
+    CREATE INDEX IF NOT EXISTS idx_vf_v3 ON verb_forms(v3_normalized);
+    CREATE INDEX IF NOT EXISTS idx_vf_v4 ON verb_forms(v4_normalized);
+    CREATE INDEX IF NOT EXISTS idx_vf_v5 ON verb_forms(v5_normalized);
     CREATE INDEX IF NOT EXISTS idx_favorites_word_id ON favorites(word_id);
     CREATE INDEX IF NOT EXISTS idx_history_searched_at ON search_history(searched_at DESC);
   `);
@@ -235,7 +255,7 @@ async function runImport() {
     rl.on('error', (err) => reject(err));
   });
 
-  console.log(`📊 Processing complete. Aggregating into SQLite tables...`);
+  console.log(`📊 Processing dictionary entries complete. Aggregating into words table...`);
 
   let uniqueEnglishWords = wordMap.size;
   let normalVocabCount = 0;
@@ -264,6 +284,79 @@ async function runImport() {
 
   insertMany(Array.from(wordMap.values()));
 
+  // ── Import Verb Forms CSV ─────────────────────────────────────────────
+  const VERB_FORMS_CSV_PATH = path.join(PROJECT_ROOT, 'src', 'data', 'verb-forms.csv');
+  let verbFormsCount = 0;
+
+  if (fs.existsSync(VERB_FORMS_CSV_PATH)) {
+    console.log(`⚡ Processing verb-forms.csv from ${VERB_FORMS_CSV_PATH}...`);
+    const vfStream = fs.createReadStream(VERB_FORMS_CSV_PATH);
+    const vfRl = readline.createInterface({
+      input: vfStream as any,
+      crlfDelay: Infinity,
+    });
+
+    const insertVfStmt = db.prepare(`
+      INSERT INTO verb_forms (v1, v1_normalized, v2, v2_normalized, v3, v3_normalized, v4, v4_normalized, v5, v5_normalized)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const vfRows: [string, string, string, string, string, string, string, string, string, string][] = [];
+
+    await new Promise<void>((resolve, reject) => {
+      vfRl.on('line', (line: string) => {
+        const lineStr = line.trim();
+        if (!lineStr) return;
+
+        const parts = lineStr.includes('\t') ? lineStr.split('\t') : lineStr.split(',');
+        const cleanParts = parts.map((p: string) => p.trim()).filter((p: string) => p.length > 0);
+
+        let v1 = '', v5 = '', v2 = '', v3 = '', v4 = '';
+
+        if (cleanParts.length >= 5) {
+          [v1, v5, v2, v3, v4] = cleanParts;
+        } else if (cleanParts.length === 4) {
+          v1 = cleanParts[0];
+          v5 = cleanParts[1];
+          v4 = cleanParts[3];
+          const v2v3 = cleanParts[2].split(' ');
+          if (v2v3.length >= 2) {
+            v2 = v2v3[0];
+            v3 = v2v3[1];
+          } else {
+            v2 = cleanParts[2];
+            v3 = cleanParts[2];
+          }
+        } else {
+          return;
+        }
+
+        if (v1 && v2 && v3 && v4 && v5) {
+          vfRows.push([
+            v1, v1.toLowerCase().trim(),
+            v2, v2.toLowerCase().trim(),
+            v3, v3.toLowerCase().trim(),
+            v4, v4.toLowerCase().trim(),
+            v5, v5.toLowerCase().trim(),
+          ]);
+        }
+      });
+
+      vfRl.on('close', () => resolve());
+      vfRl.on('error', (err) => reject(err));
+    });
+
+    const insertManyVf = db.transaction((rows) => {
+      for (const row of rows) {
+        insertVfStmt.run(...row);
+        verbFormsCount++;
+      }
+    });
+
+    insertManyVf(vfRows);
+    console.log(`✅ Loaded ${verbFormsCount} verb forms into verb_forms table.`);
+  }
+
   const dbStats = fs.statSync(OUTPUT_DB_PATH);
   const sizeMb = (dbStats.size / (1024 * 1024)).toFixed(2);
 
@@ -278,6 +371,7 @@ async function runImport() {
   console.log(`• Unique English words stored:  ${uniqueEnglishWords.toLocaleString()}`);
   console.log(`• Normal vocabulary entries:    ${normalVocabCount.toLocaleString()}`);
   console.log(`• Linguistic / suffix entries:  ${linguisticCount.toLocaleString()}`);
+  console.log(`• Verb Forms loaded:            ${verbFormsCount.toLocaleString()}`);
   console.log(`• Final SQLite database size:   ${sizeMb} MB`);
   console.log(`• Database location:            ${OUTPUT_DB_PATH}`);
   console.log('====================================================\n');

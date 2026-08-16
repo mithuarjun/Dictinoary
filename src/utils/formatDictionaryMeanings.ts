@@ -1,6 +1,6 @@
 // ─── Format Dictionary Meanings Utility ──────────────────────────────────────
 // Cleans raw Hindi dictionary meanings, removes machine artifacts & duplicates,
-// and limits output to a maximum of 4 clean, student-friendly meanings.
+// preserving ALL available meanings from the database without arbitrary truncation.
 
 /**
  * Normalizes a Hindi string for duplicate detection by removing nuktas and trailing punctuation.
@@ -27,7 +27,7 @@ function cleanMeaningToken(raw: string): string {
   cleaned = cleaned.replace(/<[^>]*>/g, '');
   cleaned = cleaned.replace(/\[[^\]]*\]/g, '');
 
-  // Convert curly brace annotations into standard readable parenthetical or remove if noisy
+  // Convert curly brace annotations into standard readable parenthetical
   // e.g. "{स्थिति}" -> "(स्थिति)"
   cleaned = cleaned.replace(/\{([^}]+)\}/g, '($1)');
 
@@ -41,13 +41,13 @@ function cleanMeaningToken(raw: string): string {
 }
 
 /**
- * Extracts and returns at most `limit` (default: 4) clean, unique Hindi meanings.
+ * Extracts and returns clean, unique Hindi meanings without arbitrary truncation.
  *
  * @param rawMeaning The raw string of Hindi meanings from the database.
- * @param limit The maximum number of meanings to return (default: 4).
+ * @param limit The maximum number of meanings to return (default: 999 to preserve all meanings).
  * @returns An array of cleaned Hindi meaning strings.
  */
-export function getTopHindiMeanings(rawMeaning: string | null | undefined, limit = 4): string[] {
+export function getTopHindiMeanings(rawMeaning: string | null | undefined, limit = 999): string[] {
   if (!rawMeaning || typeof rawMeaning !== 'string') {
     return [];
   }
@@ -80,17 +80,17 @@ export function getTopHindiMeanings(rawMeaning: string | null | undefined, limit
 }
 
 /**
- * Returns a formatted string containing at most `limit` (default: 4) clean Hindi meanings
+ * Returns a formatted string containing all clean Hindi meanings
  * joined by a separator (default: ' / ').
  *
  * @param rawMeaning The raw string of Hindi meanings.
- * @param limit The maximum number of meanings (default: 4).
+ * @param limit The maximum number of meanings (default: 999).
  * @param separator The joining string (default: ' / ').
  * @returns Formatted Hindi text.
  */
 export function formatTopHindiMeanings(
   rawMeaning: string | null | undefined,
-  limit = 4,
+  limit = 999,
   separator = ' / '
 ): string {
   const meanings = getTopHindiMeanings(rawMeaning, limit);

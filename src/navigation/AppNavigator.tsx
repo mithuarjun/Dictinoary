@@ -21,12 +21,14 @@ import { WordDetailScreen } from '../screens/WordDetailScreen';
 import { FavoritesScreen } from '../screens/FavoritesScreen';
 import { HistoryScreen } from '../screens/HistoryScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { VerbFormsScreen } from '../screens/VerbFormsScreen';
 import { fontWeight } from '../theme/typography';
 
 // ─── Route param lists ────────────────────────────────────────────────────────
 export type MainTabParamList = {
   Home: undefined;
   Search: { query?: string } | undefined;
+  VerbForms: undefined;
   Favorites: undefined;
 };
 
@@ -34,6 +36,7 @@ export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   SearchResults: { query?: string };
   WordDetail: { wordId: number; word: string };
+  VerbForms: undefined;
   Favorites: undefined;
   History: undefined;
   Settings: undefined;
@@ -55,9 +58,9 @@ function MainTabNavigator() {
       backgroundColor: c.card,
       borderTopColor: c.border,
       borderTopWidth: 1,
-      height: Platform.OS === 'android' ? 56 + (insets.bottom > 0 ? insets.bottom : 6) : 54 + insets.bottom,
-      paddingTop: 4,
-      paddingBottom: Platform.OS === 'android' ? (insets.bottom > 0 ? insets.bottom : 6) : insets.bottom + 4,
+      height: Platform.OS === 'android' ? 60 + Math.max(insets.bottom, 8) : 56 + insets.bottom,
+      paddingTop: 6,
+      paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 8) : insets.bottom + 4,
       elevation: 6,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: -2 },
@@ -86,6 +89,11 @@ function MainTabNavigator() {
             />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: () => {
+            (navigation.getParent() as any)?.popToTop?.();
+          },
+        })}
       />
       <Tab.Screen
         name="Search"
@@ -100,6 +108,30 @@ function MainTabNavigator() {
             />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: () => {
+            (navigation.getParent() as any)?.popToTop?.();
+          },
+        })}
+      />
+      <Tab.Screen
+        name="VerbForms"
+        component={VerbFormsScreen}
+        options={{
+          tabBarLabel: 'Verb Forms',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'book' : 'book-outline'}
+              size={22}
+              color={color}
+            />
+          ),
+        }}
+        listeners={({ navigation }) => ({
+          tabPress: () => {
+            (navigation.getParent() as any)?.popToTop?.();
+          },
+        })}
       />
       <Tab.Screen
         name="Favorites"
@@ -114,6 +146,11 @@ function MainTabNavigator() {
             />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: () => {
+            (navigation.getParent() as any)?.popToTop?.();
+          },
+        })}
       />
     </Tab.Navigator>
   );
@@ -198,6 +235,14 @@ export function AppNavigator() {
             headerShown: false,
             title: route.params.word,
           })}
+        />
+        <Stack.Screen
+          name="VerbForms"
+          component={VerbFormsScreen}
+          options={{
+            title: 'Verb Forms',
+            headerShown: false,
+          }}
         />
         <Stack.Screen
           name="Favorites"

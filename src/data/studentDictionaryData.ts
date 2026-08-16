@@ -14,6 +14,46 @@ export interface StudentDictionaryEntry {
 
 export const studentDictionaryEntries: StudentDictionaryEntry[] = [
   {
+    "id": 21536,
+    "word_en": "Go",
+    "word_hi": "जाना / चलना / करना / होना / बजना / सहायता करना / लगना / ख़राब होना / बंद होना / उपलब्ध होना / निकल जाना / हो जाना / काम करना / बारी / उत्साह / बीतना",
+    "phonetic": "/ɡəʊ/",
+    "part_of_speech": "verb",
+    "example_en": "Let us go home now.",
+    "example_hi": "चलो अब घर चलें।",
+    "category": "daily"
+  },
+  {
+    "id": 24151,
+    "word_en": "History",
+    "word_hi": "विवरण / इतिहास / वृत्तांत / ऐतिहासिक / पुरावृत्त",
+    "phonetic": "/ˈhɪstəri/",
+    "part_of_speech": "noun",
+    "example_en": "History teaches us valuable lessons from the past.",
+    "example_hi": "इतिहास हमें अतीत से मूल्यवान सबक सिखाता है।",
+    "category": "academic"
+  },
+  {
+    "id": 45774,
+    "word_en": "Search",
+    "word_hi": "टटोलना / परीक्षण / घुसना / जाँच / पता लगना / तलाशी लेना / खोज करना / खोज / तलाश / खोजना / तलाशी",
+    "phonetic": "/sɜːtʃ/",
+    "part_of_speech": "verb",
+    "example_en": "She searched for her lost keys everywhere.",
+    "example_hi": "उसने अपनी खोई हुई चाबियां हर जगह खोजीं।",
+    "category": "daily"
+  },
+  {
+    "id": 61423,
+    "word_en": "Watch",
+    "word_hi": "पहरेदार / ध्यान रखना / चौकसी / नजर रखना / देखना / पहरा / रखवाली / खबरदार रहना / विशेष ध्यान देना / देखते रहना / घड़ी",
+    "phonetic": "/wɒtʃ/",
+    "part_of_speech": "verb",
+    "example_en": "We watch the sunset together.",
+    "example_hi": "हम साथ में सूर्यास्त देखते हैं।",
+    "category": "daily"
+  },
+  {
     "id": 1,
     "word_en": "Ability",
     "word_hi": "क्षमता / योग्यता",

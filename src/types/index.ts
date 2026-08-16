@@ -24,6 +24,15 @@ export interface Word {
   createdAt?: number;
 }
 
+export interface VerbForm {
+  id: number;
+  v1: string;
+  v2: string;
+  v3: string;
+  v4: string;
+  v5: string;
+}
+
 export interface Favorite {
   id: number;
   wordId: number;

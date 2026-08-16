@@ -20,7 +20,7 @@ export function WordListItem({ word, onPress }: WordListItemProps) {
   const { theme } = useTheme();
   const c = theme.colors;
 
-  const topHindi = formatTopHindiMeanings(word.meaningHindi, 4);
+  const topHindi = formatTopHindiMeanings(word.meaningHindi, 999);
 
   return (
     <TouchableOpacity
