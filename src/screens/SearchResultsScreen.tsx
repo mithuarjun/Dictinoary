@@ -7,6 +7,7 @@ import {
   StyleSheet,
   StatusBar,
   useWindowDimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -21,7 +22,6 @@ import { ThemedView } from '../components/ThemedView';
 import { spacing, maxContentWidth } from '../theme/spacing';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Word } from '../types';
-import { ActivityIndicator } from 'react-native';
 
 type SearchRouteProps = RouteProp<RootStackParamList, 'SearchResults'>;
 type SearchNavProp = NativeStackNavigationProp<RootStackParamList, 'SearchResults'>;
@@ -44,7 +44,7 @@ export function SearchResultsScreen() {
     if (initialQuery) {
       search(initialQuery);
     }
-  }, [initialQuery]);
+  }, [initialQuery, search]);
 
   const handleChangeText = useCallback(
     (text: string) => {
@@ -89,6 +89,7 @@ export function SearchResultsScreen() {
               onChangeText={handleChangeText}
               onSubmit={() => {}}
               onClear={handleClear}
+              placeholder="Search an English word..."
               autoFocus={!initialQuery}
             />
           </View>
@@ -101,8 +102,8 @@ export function SearchResultsScreen() {
         ) : showEmpty ? (
           <EmptyState
             icon="🔍"
-            title="Word not found"
-            subtitle={`No results for "${lastQuery}". Try another word.`}
+            title="No results found"
+            subtitle="Try another English word."
           />
         ) : (
           <FlatList
@@ -120,9 +121,9 @@ export function SearchResultsScreen() {
             ListEmptyComponent={
               lastQuery.length === 0 ? (
                 <EmptyState
-                  icon="🔠"
-                  title="Start typing"
-                  subtitle="Type an English word to search"
+                  icon="🔍"
+                  title="Search Dictionary"
+                  subtitle="Type any English word to find its Hindi meaning"
                 />
               ) : null
             }
@@ -132,6 +133,8 @@ export function SearchResultsScreen() {
     </ThemedView>
   );
 }
+
+export default SearchResultsScreen;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
@@ -150,7 +153,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: spacing['5'],
     paddingTop: spacing['4'],
-    paddingBottom: spacing['10'],
+    paddingBottom: spacing['12'],
     flexGrow: 1,
   },
 });

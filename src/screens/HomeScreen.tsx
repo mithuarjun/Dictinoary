@@ -1,4 +1,4 @@
-// ─── Home Screen ──────────────────────────────────────────────────────────────
+// ─── Home Screen (Modern Minimalist Dictionary) ─────────────────────────────
 
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -8,7 +8,6 @@ import {
   StyleSheet,
   StatusBar,
   useWindowDimensions,
-  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -17,27 +16,16 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useTheme } from '../hooks/useTheme';
 import { SearchBar } from '../components/SearchBar';
-import { WordChip } from '../components/WordChip';
 import { SectionHeader } from '../components/SectionHeader';
 import { ThemedText } from '../components/ThemedText';
 import { ThemedView } from '../components/ThemedView';
 import { historyRepository } from '../repositories/HistoryRepository';
-import { dictionaryRepository } from '../repositories/DictionaryRepository';
 import { spacing, borderRadius, shadow, maxContentWidth } from '../theme/spacing';
 import { fontSize, fontWeight } from '../theme/typography';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { Word } from '../types';
+import { SearchHistoryEntry } from '../types';
 
-type HomeNavProp = NativeStackNavigationProp<RootStackParamList, 'Main'>;
-
-interface ExploreCard {
-  id: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  description: string;
-  color: string;
-  route: keyof RootStackParamList;
-}
+type HomeNavProp = NativeStackNavigationProp<RootStackParamList>;
 
 export function HomeScreen() {
   const { theme } = useTheme();
@@ -46,33 +34,28 @@ export function HomeScreen() {
   const { width } = useWindowDimensions();
 
   const [searchText, setSearchText] = useState('');
-  const [recentWords, setRecentWords] = useState<Word[]>([]);
-  const [wordOfDay, setWordOfDay] = useState<Word | null>(null);
+  const [recentHistory, setRecentHistory] = useState<SearchHistoryEntry[]>([]);
 
   const contentWidth = Math.min(width, maxContentWidth);
 
-  const loadData = useCallback(async () => {
+  const loadRecentHistory = useCallback(async () => {
     try {
-      const [history, wotd] = await Promise.all([
-        historyRepository.getHistory(),
-        dictionaryRepository.getWordOfDay(),
-      ]);
-      setRecentWords(history.slice(0, 8).map((h) => h.word));
-      setWordOfDay(wotd);
+      const history = await historyRepository.getHistory();
+      setRecentHistory(history.slice(0, 10));
     } catch (err) {
-      console.error('[HomeScreen] loadData error:', err);
+      console.error('[HomeScreen] loadRecentHistory error:', err);
     }
   }, []);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    loadRecentHistory();
+  }, [loadRecentHistory]);
 
-  // Reload when returning to screen
+  // Reload when screen gains focus
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', loadData);
+    const unsubscribe = navigation.addListener('focus', loadRecentHistory);
     return unsubscribe;
-  }, [navigation, loadData]);
+  }, [navigation, loadRecentHistory]);
 
   const handleSearch = useCallback(() => {
     if (searchText.trim()) {
@@ -80,39 +63,12 @@ export function HomeScreen() {
     }
   }, [searchText, navigation]);
 
-  const handleChipPress = useCallback(
-    (word: string) => {
-      navigation.navigate('SearchResults', { query: word });
+  const handleWordSelect = useCallback(
+    (wordId: number, wordText: string) => {
+      navigation.navigate('WordDetail', { wordId, word: wordText });
     },
     [navigation]
   );
-
-  const exploreCards: ExploreCard[] = [
-    {
-      id: 'favorites',
-      icon: 'star',
-      label: 'Favorites',
-      description: 'Saved words',
-      color: '#FFB300',
-      route: 'Favorites',
-    },
-    {
-      id: 'history',
-      icon: 'time',
-      label: 'History',
-      description: 'Recent searches',
-      color: '#5C6BC0',
-      route: 'History',
-    },
-    {
-      id: 'wotd',
-      icon: 'sunny',
-      label: 'Word of Day',
-      description: "Today's word",
-      color: '#43A047',
-      route: 'WordOfDay',
-    },
-  ];
 
   return (
     <ThemedView variant="background" style={styles.flex}>
@@ -125,173 +81,163 @@ export function HomeScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: spacing['10'] },
+            { paddingBottom: spacing['12'] },
           ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Center content on tablets */}
           <View style={[styles.inner, { maxWidth: contentWidth, alignSelf: 'center', width: '100%' }]}>
-            {/* Header */}
+            {/* Header / Branding */}
             <View style={styles.header}>
-              <View>
-                <ThemedText variant="title" style={styles.appTitle}>
+              <View style={styles.titleContainer}>
+                <ThemedText variant="title" style={[styles.appTitle, { color: c.primary }]}>
                   Gem Dictionary
                 </ThemedText>
                 <ThemedText
                   variant="caption"
-                  style={{ color: c.textSecondary, marginTop: 2 }}
+                  style={[styles.appSubtitle, { color: c.textSecondary }]}
                 >
                   English → Hindi Offline Dictionary
                 </ThemedText>
               </View>
+
               <TouchableOpacity
                 onPress={() => navigation.navigate('Settings')}
-                style={[styles.settingsBtn, { backgroundColor: c.surfaceVariant }]}
+                style={[styles.settingsBtn, { backgroundColor: c.surfaceVariant, borderColor: c.border }]}
                 accessibilityLabel="Open settings"
                 accessibilityRole="button"
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Ionicons name="settings-outline" size={22} color={c.textSecondary} />
+                <Ionicons name="settings-outline" size={20} color={c.textSecondary} />
               </TouchableOpacity>
             </View>
 
-            {/* Search Bar */}
+            {/* Search Bar Section */}
             <View style={styles.searchSection}>
               <SearchBar
                 value={searchText}
                 onChangeText={setSearchText}
                 onSubmit={handleSearch}
                 onClear={() => setSearchText('')}
+                placeholder="Search an English word..."
               />
             </View>
 
-            {/* Word of the Day Banner */}
-            {wordOfDay && (
-              <TouchableOpacity
-                style={[
-                  styles.wotdBanner,
-                  { backgroundColor: c.primary },
-                  shadow.md,
-                ]}
-                onPress={() => navigation.navigate('WordOfDay')}
-                activeOpacity={0.85}
-                accessibilityRole="button"
-                accessibilityLabel={`Word of the Day: ${wordOfDay.word}`}
-              >
-                <View style={styles.wotdLeft}>
-                  <ThemedText
-                    style={[styles.wotdLabel, { color: 'rgba(255,255,255,0.75)' }]}
-                  >
-                    ☀️  Word of the Day
-                  </ThemedText>
-                  <ThemedText
-                    style={[styles.wotdWord, { color: '#fff' }]}
-                  >
-                    {wordOfDay.word}
-                  </ThemedText>
-                  <ThemedText
-                    style={[styles.wotdHindi, { color: 'rgba(255,255,255,0.88)' }]}
-                  >
-                    {wordOfDay.meaningHindi}
-                  </ThemedText>
-                </View>
-                <Ionicons name="chevron-forward" size={22} color="rgba(255,255,255,0.6)" />
-              </TouchableOpacity>
-            )}
-
-            {/* Recent Words */}
-            {recentWords.length > 0 && (
-              <View style={styles.section}>
-                <SectionHeader title="Recent Searches" />
-                <View style={styles.chipRow}>
-                  {recentWords.map((w) => (
-                    <WordChip
-                      key={w.id}
-                      label={w.word}
-                      onPress={() => handleChipPress(w.word)}
-                    />
-                  ))}
-                </View>
-              </View>
-            )}
-
-            {/* Explore */}
+            {/* Recent Searches */}
             <View style={styles.section}>
-              <SectionHeader title="Explore" />
-              <View style={styles.cardsRow}>
-                {exploreCards.map((card) => (
+              <View style={styles.sectionHeaderRow}>
+                <ThemedText
+                  variant="label"
+                  style={[styles.sectionHeading, { color: c.textSecondary }]}
+                >
+                  Recent Searches
+                </ThemedText>
+
+                {recentHistory.length > 0 && (
                   <TouchableOpacity
-                    key={card.id}
-                    style={[
-                      styles.exploreCard,
-                      { backgroundColor: c.card, borderColor: c.border },
-                      shadow.sm,
-                    ]}
-                    onPress={() => navigation.navigate(card.route as any)}
-                    activeOpacity={0.8}
+                    onPress={() => navigation.navigate('History')}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     accessibilityRole="button"
-                    accessibilityLabel={card.label}
+                    accessibilityLabel="View all search history"
                   >
-                    <View
-                      style={[
-                        styles.cardIconBg,
-                        { backgroundColor: card.color + '20' },
-                      ]}
-                    >
-                      <Ionicons name={card.icon} size={26} color={card.color} />
-                    </View>
                     <ThemedText
-                      style={[styles.cardLabel, { color: c.text }]}
-                      semiBold
+                      style={[styles.viewAllText, { color: c.primary }]}
                     >
-                      {card.label}
-                    </ThemedText>
-                    <ThemedText
-                      variant="caption"
-                      style={{ color: c.textSecondary, fontSize: 11, marginTop: 2 }}
-                    >
-                      {card.description}
+                      View All
                     </ThemedText>
                   </TouchableOpacity>
-                ))}
+                )}
               </View>
+
+              {recentHistory.length > 0 ? (
+                <View style={styles.chipsWrap}>
+                  {recentHistory.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[
+                        styles.chip,
+                        {
+                          backgroundColor: c.card,
+                          borderColor: c.border,
+                        },
+                        shadow.sm,
+                      ]}
+                      onPress={() => handleWordSelect(item.wordId, item.word.word)}
+                      activeOpacity={0.7}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Recent word: ${item.word.word}`}
+                    >
+                      <Ionicons
+                        name="time-outline"
+                        size={14}
+                        color={c.primary}
+                        style={{ marginRight: 6 }}
+                      />
+                      <ThemedText
+                        style={[styles.chipText, { color: c.text }]}
+                        semiBold
+                      >
+                        {item.word.word}
+                      </ThemedText>
+                      {item.word.meaningHindi ? (
+                        <ThemedText
+                          style={[styles.chipHindi, { color: c.textTertiary }]}
+                          numberOfLines={1}
+                        >
+                          • {item.word.meaningHindi.split('/')[0].trim()}
+                        </ThemedText>
+                      ) : null}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <View style={[styles.emptyRecentBox, { backgroundColor: c.surfaceVariant + '60', borderColor: c.border }]}>
+                  <Ionicons name="search-outline" size={24} color={c.textTertiary} />
+                  <ThemedText style={[styles.emptyRecentText, { color: c.textSecondary }]}>
+                    No recent searches
+                  </ThemedText>
+                  <ThemedText style={[styles.emptyRecentSub, { color: c.textTertiary }]}>
+                    Search for words above to quickly access them here.
+                  </ThemedText>
+                </View>
+              )}
             </View>
 
-            {/* Student Dictionary Banner */}
+            {/* Quick Access Card: Search History */}
             <TouchableOpacity
               style={[
-                styles.studentBanner,
-                { backgroundColor: c.surface, borderColor: c.primary, borderWidth: 1.5 },
-                shadow.md,
+                styles.quickAccessCard,
+                { backgroundColor: c.card, borderColor: c.border },
+                shadow.sm,
               ]}
-              onPress={() => navigation.navigate('StudentDictionary')}
-              activeOpacity={0.85}
+              onPress={() => navigation.navigate('History')}
+              activeOpacity={0.8}
               accessibilityRole="button"
-              accessibilityLabel="Open Student Dictionary"
+              accessibilityLabel="Open Search History"
             >
-              <View style={[styles.studentIconBg, { backgroundColor: c.primary + '15' }]}>
-                <Ionicons name="school" size={28} color={c.primary} />
+              <View style={[styles.quickAccessIcon, { backgroundColor: c.primary + '15' }]}>
+                <Ionicons name="time" size={22} color={c.primary} />
               </View>
-              <View style={styles.studentBannerText}>
-                <ThemedText style={[styles.studentTitle, { color: c.text }]}>
-                  Student Dictionary (Classes 1–10)
+              <View style={styles.quickAccessContent}>
+                <ThemedText style={[styles.quickAccessTitle, { color: c.text }]} semiBold>
+                  Full Search History
                 </ThemedText>
-                <ThemedText style={[styles.studentSub, { color: c.textSecondary }]}>
-                  500+ Words • Science, Math, Exam Vocab & Phrases
+                <ThemedText style={[styles.quickAccessSubtitle, { color: c.textSecondary }]}>
+                  Review previously looked up words & definitions
                 </ThemedText>
               </View>
-              <Ionicons name="arrow-forward" size={20} color={c.primary} />
+              <Ionicons name="chevron-forward" size={18} color={c.textTertiary} />
             </TouchableOpacity>
 
-            {/* Offline badge */}
-            <View style={styles.offlineBadge}>
-              <Ionicons name="wifi-outline" size={14} color={c.textTertiary} />
+            {/* Offline Badge Footer */}
+            <View style={styles.offlineFooter}>
+              <View style={[styles.offlineDot, { backgroundColor: '#10B981' }]} />
+              <Ionicons name="shield-checkmark" size={14} color={c.textTertiary} style={{ marginRight: 4 }} />
               <ThemedText
                 variant="caption"
-                style={{ color: c.textTertiary, marginLeft: 6, fontSize: 12 }}
+                style={[styles.offlineText, { color: c.textTertiary }]}
               >
-                Works fully offline • 500+ student words • Ad-free
+                100% Offline • 65,000+ Words • Ad-Free
               </ThemedText>
             </View>
           </View>
@@ -300,6 +246,8 @@ export function HomeScreen() {
     </ThemedView>
   );
 }
+
+export default HomeScreen;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
@@ -311,111 +259,133 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: spacing['5'],
     marginTop: spacing['2'],
+  },
+  titleContainer: {
+    flex: 1,
   },
   appTitle: {
     fontSize: 28,
     fontWeight: fontWeight.extraBold,
-    letterSpacing: -0.5,
+    letterSpacing: -0.6,
+  },
+  appSubtitle: {
+    fontSize: fontSize.sm,
+    marginTop: 2,
+    fontWeight: fontWeight.medium,
   },
   settingsBtn: {
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
     borderRadius: borderRadius.full,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 4,
   },
   searchSection: {
-    marginBottom: spacing['5'],
-  },
-  wotdBanner: {
-    borderRadius: borderRadius.xl,
-    padding: spacing['5'],
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: spacing['6'],
-  },
-  wotdLeft: { flex: 1 },
-  wotdLabel: {
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.semiBold,
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  },
-  wotdWord: {
-    fontSize: fontSize['2xl'],
-    fontWeight: fontWeight.extraBold,
-    letterSpacing: -0.5,
-  },
-  wotdHindi: {
-    fontSize: fontSize.md,
-    marginTop: 4,
   },
   section: {
     marginBottom: spacing['6'],
   },
-  chipRow: {
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing['3'],
+  },
+  sectionHeading: {
+    fontSize: fontSize.xs,
+    fontWeight: fontWeight.bold,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  viewAllText: {
+    fontSize: fontSize.xs,
+    fontWeight: fontWeight.semiBold,
+  },
+  chipsWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: spacing['2'],
   },
-  cardsRow: {
+  chip: {
     flexDirection: 'row',
-    gap: spacing['3'],
-  },
-  exploreCard: {
-    flex: 1,
-    borderRadius: borderRadius.xl,
+    alignItems: 'center',
+    paddingHorizontal: spacing['3'],
+    paddingVertical: spacing['2'],
+    borderRadius: borderRadius.full,
     borderWidth: 1,
-    padding: spacing['4'],
-    alignItems: 'flex-start',
+    maxWidth: '100%',
   },
-  studentBanner: {
+  chipText: {
+    fontSize: fontSize.sm,
+  },
+  chipHindi: {
+    fontSize: fontSize.xs,
+    marginLeft: 4,
+    maxWidth: 120,
+  },
+  emptyRecentBox: {
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    paddingVertical: spacing['6'],
+    paddingHorizontal: spacing['4'],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyRecentText: {
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.semiBold,
+    marginTop: spacing['2'],
+  },
+  emptyRecentSub: {
+    fontSize: fontSize.xs,
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  quickAccessCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing['4'],
     borderRadius: borderRadius.xl,
-    marginTop: spacing['2'],
-    marginBottom: spacing['4'],
+    borderWidth: 1,
+    marginBottom: spacing['6'],
   },
-  studentIconBg: {
-    width: 48,
-    height: 48,
+  quickAccessIcon: {
+    width: 44,
+    height: 44,
     borderRadius: borderRadius.lg,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing['3'],
   },
-  studentBannerText: {
+  quickAccessContent: {
     flex: 1,
   },
-  studentTitle: {
+  quickAccessTitle: {
     fontSize: fontSize.md,
-    fontWeight: fontWeight.bold,
   },
-  studentSub: {
+  quickAccessSubtitle: {
     fontSize: fontSize.xs,
     marginTop: 2,
   },
-  cardIconBg: {
-    width: 48,
-    height: 48,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing['3'],
-  },
-  cardLabel: {
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.semiBold,
-  },
-  offlineBadge: {
+  offlineFooter: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: spacing['4'],
-    paddingVertical: spacing['3'],
+    paddingVertical: spacing['2'],
+  },
+  offlineDot: {
+    width: 6,
+    height: 6,
+    borderRadius: borderRadius.full,
+    marginRight: 6,
+  },
+  offlineText: {
+    fontSize: 12,
+    fontWeight: fontWeight.medium,
   },
 });
