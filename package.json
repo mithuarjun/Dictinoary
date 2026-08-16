@@ -1,22 +1,45 @@
 {
-  "name": "dictinoary",
+  "name": "gem-dictionary",
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
-    "expo": "~57.0.13",
-    "expo-status-bar": "~57.0.1",
-    "react": "19.2.3",
-    "react-native": "0.86.2"
+    "@expo/metro-runtime": "~4.0.1",
+    "@expo/vector-icons": "~14.0.4",
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-navigation/bottom-tabs": "^7.0.0",
+    "@react-navigation/native": "^7.0.0",
+    "@react-navigation/native-stack": "^7.0.0",
+    "expo": "~52.0.48",
+    "expo-asset": "~11.0.5",
+    "expo-file-system": "~18.0.12",
+    "expo-font": "~13.0.3",
+    "expo-speech": "~13.0.0",
+    "expo-splash-screen": "~0.29.22",
+    "expo-sqlite": "~15.1.4",
+    "expo-status-bar": "~2.0.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-native": "0.76.9",
+    "react-native-safe-area-context": "4.12.0",
+    "react-native-screens": "~4.4.0",
+    "react-native-web": "~0.19.13"
   },
   "devDependencies": {
-    "@types/react": "~19.2.2",
-    "typescript": "~6.0.3"
+    "@expo/ngrok": "^4.1.0",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.2.0",
+    "@types/react": "~18.3.12",
+    "babel-preset-expo": "~12.0.8",
+    "better-sqlite3": "^13.0.3",
+    "tsx": "^4.23.12",
+    "typescript": "~5.3.3"
   },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "import-dictionary": "tsx scripts/importDictionary.ts"
   },
   "private": true
 }

@@ -1,16 +1,27 @@
 // ─── Core Types ───────────────────────────────────────────────────────────────
 
+export interface DictionaryWord {
+  id: number;
+  word: string;
+  word_normalized: string;
+  hindi_meaning: string;
+  part_of_speech: string;
+  is_linguistic_entry: number;
+}
+
 export interface Word {
   id: number;
   word: string;
+  word_normalized?: string;
   meaningHindi: string;
-  definition: string;
-  synonyms: string[];
-  antonyms: string[];
-  example: string;
-  pronunciation: string;
+  definition?: string;
+  synonyms?: string[];
+  antonyms?: string[];
+  example?: string;
+  pronunciation?: string;
   partOfSpeech: string;
-  createdAt: number;
+  is_linguistic_entry?: number;
+  createdAt?: number;
 }
 
 export interface Favorite {

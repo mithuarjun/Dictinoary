@@ -1,92 +1,92 @@
 // ─── Color Palette ────────────────────────────────────────────────────────────
-// Primary: Deep Indigo / Purple (#5C6BC0) — premium educational feel
+// Primary: Gem Sapphire Blue (#1A56DB / #2563EB) — Gem Dictionary royal jewel theme
 
 import { ThemeColors } from '../types';
 
 export const lightColors: ThemeColors = {
-  // Primary
-  primary: '#5C6BC0',
-  primaryLight: '#8E99F3',
-  primaryDark: '#26418f',
+  // Primary - Sapphire Gem Blue
+  primary: '#1A56DB',
+  primaryLight: '#3B82F6',
+  primaryDark: '#1E40AF',
   onPrimary: '#FFFFFF',
 
   // Surface
-  background: '#F5F5F9',
+  background: '#F4F7FC',
   surface: '#FFFFFF',
-  surfaceVariant: '#EEF0FF',
+  surfaceVariant: '#EBF2FE',
   card: '#FFFFFF',
 
   // Text
-  text: '#1A1A2E',
-  textSecondary: '#4A4A6A',
-  textTertiary: '#8888AA',
+  text: '#0F172A',
+  textSecondary: '#475569',
+  textTertiary: '#94A3B8',
   textOnPrimary: '#FFFFFF',
 
   // Borders & Dividers
-  border: '#E0E0F0',
-  divider: '#F0F0F8',
+  border: '#E2E8F0',
+  divider: '#F1F5F9',
 
   // Status
-  success: '#2E7D32',
-  error: '#C62828',
-  warning: '#E65100',
-  info: '#1565C0',
+  success: '#16A34A',
+  error: '#DC2626',
+  warning: '#D97706',
+  info: '#2563EB',
 
   // Chip
-  chipBackground: '#EEF0FF',
-  chipText: '#3949AB',
+  chipBackground: '#EFF6FF',
+  chipText: '#1D4ED8',
 
   // Shadow
-  shadow: '#000000',
+  shadow: '#0F172A',
 
   // Misc
-  placeholder: '#AAAABB',
+  placeholder: '#94A3B8',
   searchBackground: '#FFFFFF',
-  overlay: 'rgba(0,0,0,0.4)',
-  favoriteActive: '#FFB300',
-  hindi: '#5C6BC0',
+  overlay: 'rgba(15, 23, 42, 0.4)',
+  favoriteActive: '#EAB308',
+  hindi: '#1E40AF',
 };
 
 export const darkColors: ThemeColors = {
   // Primary
-  primary: '#7986CB',
-  primaryLight: '#AAB3E8',
-  primaryDark: '#5C6BC0',
+  primary: '#3B82F6',
+  primaryLight: '#60A5FA',
+  primaryDark: '#1D4ED8',
   onPrimary: '#FFFFFF',
 
   // Surface
-  background: '#0F0F1A',
-  surface: '#1A1A2E',
-  surfaceVariant: '#252540',
-  card: '#1E1E35',
+  background: '#0B1329',
+  surface: '#131F3F',
+  surfaceVariant: '#1E2D5A',
+  card: '#152449',
 
   // Text
-  text: '#E8E8FF',
-  textSecondary: '#AAAAC8',
-  textTertiary: '#6666A0',
+  text: '#F8FAFC',
+  textSecondary: '#CBD5E1',
+  textTertiary: '#64748B',
   textOnPrimary: '#FFFFFF',
 
   // Borders & Dividers
-  border: '#2E2E50',
-  divider: '#252540',
+  border: '#2A3B6E',
+  divider: '#1E2D5A',
 
   // Status
-  success: '#66BB6A',
-  error: '#EF5350',
-  warning: '#FFA726',
-  info: '#42A5F5',
+  success: '#4ADE80',
+  error: '#F87171',
+  warning: '#FBBF24',
+  info: '#60A5FA',
 
   // Chip
-  chipBackground: '#252550',
-  chipText: '#AAB3E8',
+  chipBackground: '#1E2D5A',
+  chipText: '#93C5FD',
 
   // Shadow
   shadow: '#000000',
 
   // Misc
-  placeholder: '#666688',
-  searchBackground: '#1E1E35',
-  overlay: 'rgba(0,0,0,0.6)',
-  favoriteActive: '#FFB300',
-  hindi: '#AAB3E8',
+  placeholder: '#64748B',
+  searchBackground: '#152449',
+  overlay: 'rgba(0, 0, 0, 0.7)',
+  favoriteActive: '#FACC15',
+  hindi: '#93C5FD',
 };
