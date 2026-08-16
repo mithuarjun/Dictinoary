@@ -1,5 +1,5 @@
 // ─── Word List Item ───────────────────────────────────────────────────────────
-// A single search result row
+// A compact, clean search result row displaying maximum 4 Hindi meanings.
 
 import React from 'react';
 import { TouchableOpacity, View, StyleSheet } from 'react-native';
@@ -8,7 +8,8 @@ import { useTheme } from '../hooks/useTheme';
 import { ThemedText } from './ThemedText';
 import { borderRadius, spacing, shadow } from '../theme/spacing';
 import { Word } from '../types';
-import { fontSize } from '../theme/typography';
+import { fontSize, fontWeight } from '../theme/typography';
+import { formatTopHindiMeanings } from '../utils/formatDictionaryMeanings';
 
 interface WordListItemProps {
   word: Word;
@@ -18,6 +19,8 @@ interface WordListItemProps {
 export function WordListItem({ word, onPress }: WordListItemProps) {
   const { theme } = useTheme();
   const c = theme.colors;
+
+  const topHindi = formatTopHindiMeanings(word.meaningHindi, 4);
 
   return (
     <TouchableOpacity
@@ -29,28 +32,46 @@ export function WordListItem({ word, onPress }: WordListItemProps) {
       ]}
       activeOpacity={0.75}
       accessibilityRole="button"
-      accessibilityLabel={`${word.word}, ${word.meaningHindi}`}
+      accessibilityLabel={`${word.word}: ${topHindi}`}
     >
       <View style={styles.content}>
         <View style={styles.left}>
-          <ThemedText style={[styles.word, { color: c.primary }]}>
-            {word.word}
-          </ThemedText>
-          <ThemedText variant="caption" style={styles.pronunciation}>
-            {word.pronunciation}
-          </ThemedText>
-          <ThemedText variant="hindi" style={[styles.hindi, { color: c.hindi }]}>
-            {word.meaningHindi}
-          </ThemedText>
-          <View style={[styles.badge, { backgroundColor: c.chipBackground }]}>
-            <ThemedText style={[styles.badgeText, { color: c.chipText }]}>
-              {word.partOfSpeech}
+          {/* Top row: Word and optional pronunciation */}
+          <View style={styles.wordRow}>
+            <ThemedText style={[styles.word, { color: c.text }]}>
+              {word.word}
             </ThemedText>
+            {word.pronunciation ? (
+              <ThemedText variant="caption" style={[styles.pronunciation, { color: c.textTertiary }]}>
+                {word.pronunciation}
+              </ThemedText>
+            ) : null}
           </View>
+
+          {/* Hindi Meanings (Maximum 4, clean and readable) */}
+          <ThemedText
+            variant="hindi"
+            style={[styles.hindi, { color: c.primary }]}
+            numberOfLines={2}
+            ellipsizeMode="tail"
+          >
+            {topHindi}
+          </ThemedText>
+
+          {/* Bottom row: Part of Speech badge */}
+          {word.partOfSpeech ? (
+            <View style={[styles.badge, { backgroundColor: c.surfaceVariant }]}>
+              <ThemedText style={[styles.badgeText, { color: c.textSecondary }]}>
+                {word.partOfSpeech}
+              </ThemedText>
+            </View>
+          ) : null}
         </View>
+
+        {/* Navigation arrow */}
         <Ionicons
           name="chevron-forward"
-          size={20}
+          size={18}
           color={c.textTertiary}
           style={styles.chevron}
         />
@@ -58,6 +79,8 @@ export function WordListItem({ word, onPress }: WordListItemProps) {
     </TouchableOpacity>
   );
 }
+
+export default WordListItem;
 
 const styles = StyleSheet.create({
   container: {
@@ -69,39 +92,46 @@ const styles = StyleSheet.create({
   content: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing['4'],
+    paddingHorizontal: spacing['4'],
+    paddingVertical: spacing['3'],
   },
   left: {
     flex: 1,
-    gap: spacing['1'],
+  },
+  wordRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: spacing['2'],
   },
   word: {
-    fontSize: fontSize.xl,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: fontWeight.bold,
+    letterSpacing: -0.3,
   },
   pronunciation: {
     fontSize: fontSize.xs,
-    opacity: 0.7,
   },
   hindi: {
-    fontSize: fontSize.lg,
-    fontWeight: '600',
-    marginTop: spacing['1'],
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: fontWeight.medium,
+    marginTop: 4,
+    marginBottom: 4,
   },
   badge: {
     alignSelf: 'flex-start',
     paddingHorizontal: spacing['2'],
     paddingVertical: 2,
-    borderRadius: borderRadius.xs,
-    marginTop: spacing['1'],
+    borderRadius: borderRadius.sm,
+    marginTop: 2,
   },
   badgeText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: fontWeight.semiBold,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   chevron: {
-    marginLeft: spacing['2'],
+    marginLeft: spacing['3'],
   },
 });

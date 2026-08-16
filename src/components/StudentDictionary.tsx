@@ -30,6 +30,7 @@ import { Word } from '../types';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { spacing, borderRadius, shadow, maxContentWidth } from '../theme/spacing';
 import { fontSize, fontWeight } from '../theme/typography';
+import { formatTopHindiMeanings } from '../utils/formatDictionaryMeanings';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -226,7 +227,7 @@ export function StudentDictionary() {
             style={[styles.cardHindi, { color: c.primary }]}
             numberOfLines={2}
           >
-            {item.meaningHindi}
+            {formatTopHindiMeanings(item.meaningHindi, 4)}
           </ThemedText>
         </TouchableOpacity>
       );
@@ -384,7 +385,7 @@ export function StudentDictionary() {
                     variant="hindi"
                     style={[styles.modalHindiText, { color: c.primary }]}
                   >
-                    {selectedWord.meaningHindi}
+                    {formatTopHindiMeanings(selectedWord.meaningHindi, 4)}
                   </ThemedText>
                 </View>
 

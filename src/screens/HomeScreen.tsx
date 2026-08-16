@@ -24,6 +24,7 @@ import { spacing, borderRadius, shadow, maxContentWidth } from '../theme/spacing
 import { fontSize, fontWeight } from '../theme/typography';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { SearchHistoryEntry } from '../types';
+import { formatTopHindiMeanings } from '../utils/formatDictionaryMeanings';
 
 type HomeNavProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -184,7 +185,7 @@ export function HomeScreen() {
                           style={[styles.chipHindi, { color: c.textTertiary }]}
                           numberOfLines={1}
                         >
-                          • {item.word.meaningHindi.split('/')[0].trim()}
+                          • {formatTopHindiMeanings(item.word.meaningHindi, 1)}
                         </ThemedText>
                       ) : null}
                     </TouchableOpacity>

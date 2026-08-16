@@ -27,6 +27,7 @@ import { spacing, borderRadius, shadow, maxContentWidth } from '../theme/spacing
 import { fontSize, fontWeight } from '../theme/typography';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Word } from '../types';
+import { formatTopHindiMeanings } from '../utils/formatDictionaryMeanings';
 
 type DetailRouteProp = RouteProp<RootStackParamList, 'WordDetail'>;
 type DetailNavProp = NativeStackNavigationProp<RootStackParamList, 'WordDetail'>;
@@ -213,14 +214,14 @@ export function WordDetailScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Hindi Meaning Card */}
+            {/* Hindi Meaning Card (Max 4 clean meanings) */}
             <View style={[styles.card, { backgroundColor: c.card, borderColor: c.border }, shadow.sm]}>
               <SectionHeader title="Hindi Meaning" />
               <ThemedText
                 variant="hindi"
-                style={{ color: c.hindi, fontSize: 24, lineHeight: 38 }}
+                style={{ color: c.hindi, fontSize: 22, lineHeight: 34, fontWeight: fontWeight.semiBold }}
               >
-                {word.meaningHindi}
+                {formatTopHindiMeanings(word.meaningHindi, 4)}
               </ThemedText>
               {word.definition ? (
                 <ThemedText
