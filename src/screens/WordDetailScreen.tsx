@@ -172,65 +172,63 @@ export function WordDetailScreen() {
                 shadow.md,
               ]}
             >
+              {/* Listen speaker button in top-right corner */}
+              <TouchableOpacity
+                style={[styles.listenCornerBtn, { backgroundColor: 'rgba(255,255,255,0.22)' }]}
+                onPress={handleSpeak}
+                activeOpacity={0.75}
+                accessibilityLabel={`Listen to pronunciation of ${word.word}`}
+                accessibilityRole="button"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Ionicons
+                  name={isSpeaking ? 'volume-high' : 'volume-medium-outline'}
+                  size={20}
+                  color="#fff"
+                />
+              </TouchableOpacity>
+
               {/* Part of speech badge */}
               {word.partOfSpeech ? (
                 <View style={styles.posBadge}>
                   <ThemedText
-                    style={{ color: 'rgba(255,255,255,0.85)', fontSize: 10, fontWeight: fontWeight.semiBold, letterSpacing: 0.5, textTransform: 'uppercase', textAlign: 'center' }}
+                    style={{ color: 'rgba(255,255,255,0.9)', fontSize: 11, fontWeight: fontWeight.bold, letterSpacing: 0.8, textTransform: 'uppercase', textAlign: 'center' }}
                   >
                     {word.partOfSpeech}
                   </ThemedText>
                 </View>
               ) : null}
 
-              {/* Word */}
+              {/* English Word (Bigger & Centered) */}
               <ThemedText
-                style={{ color: '#fff', fontSize: 24, fontWeight: fontWeight.bold, letterSpacing: -0.4, lineHeight: 30, marginBottom: 2, textAlign: 'center' }}
+                style={{ color: '#fff', fontSize: 32, fontWeight: fontWeight.extraBold, letterSpacing: -0.5, lineHeight: 38, marginTop: 4, marginBottom: 4, textAlign: 'center' }}
               >
                 {word.word}
               </ThemedText>
 
-              {/* Phonetic */}
+              {/* Phonetic / Pronunciation */}
               {word.pronunciation ? (
                 <ThemedText
-                  style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, lineHeight: 16, marginBottom: spacing['3'], textAlign: 'center' }}
+                  style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15, lineHeight: 20, textAlign: 'center' }}
                 >
                   {word.pronunciation}
                 </ThemedText>
               ) : null}
-
-              {/* Listen button */}
-              <TouchableOpacity
-                style={[styles.listenBtn, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
-                onPress={handleSpeak}
-                activeOpacity={0.75}
-                accessibilityLabel={`Listen to pronunciation of ${word.word}`}
-                accessibilityRole="button"
-              >
-                <Ionicons
-                  name={isSpeaking ? 'volume-high' : 'volume-medium-outline'}
-                  size={16}
-                  color="#fff"
-                />
-                <ThemedText style={{ color: '#fff', marginLeft: 6, fontWeight: fontWeight.semiBold, fontSize: 13 }}>
-                  {isSpeaking ? 'Playing…' : 'Listen'}
-                </ThemedText>
-              </TouchableOpacity>
             </View>
 
-            {/* Hindi Meaning Card (Max 4 clean meanings) */}
+            {/* Hindi Meaning Card (Max 4 clean meanings, clear & bigger) */}
             <View style={[styles.card, { backgroundColor: c.card, borderColor: c.border }, shadow.sm]}>
               <SectionHeader title="Hindi Meaning" />
               <ThemedText
                 variant="hindi"
-                style={{ color: c.hindi, fontSize: 18, lineHeight: 28, fontWeight: fontWeight.semiBold }}
+                style={{ color: c.hindi, fontSize: 22, lineHeight: 32, fontWeight: fontWeight.semiBold }}
               >
                 {formatTopHindiMeanings(word.meaningHindi, 4)}
               </ThemedText>
               {word.definition ? (
                 <ThemedText
                   variant="body"
-                  style={{ color: c.textSecondary, marginTop: spacing['2'], fontSize: 13, lineHeight: 18 }}
+                  style={{ color: c.textSecondary, marginTop: spacing['2'], fontSize: 14, lineHeight: 20 }}
                 >
                   {word.definition}
                 </ThemedText>
@@ -357,19 +355,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['5'],
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
     marginBottom: spacing['4'],
+  },
+  listenCornerBtn: {
+    position: 'absolute',
+    top: spacing['4'],
+    right: spacing['4'],
+    width: 38,
+    height: 38,
+    borderRadius: borderRadius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
   },
   posBadge: {
     alignSelf: 'center',
-    marginBottom: spacing['2'],
-  },
-  listenBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'center',
-    paddingHorizontal: spacing['4'],
-    paddingVertical: spacing['2'],
-    borderRadius: borderRadius.full,
+    marginBottom: spacing['1'],
   },
   card: {
     borderRadius: borderRadius.lg,
