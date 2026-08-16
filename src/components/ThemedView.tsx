@@ -4,11 +4,12 @@ import React from 'react';
 import { View, ViewProps } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 
-interface ThemedViewProps extends ViewProps {
+export interface ThemedViewProps extends ViewProps {
   variant?: 'background' | 'surface' | 'card' | 'surfaceVariant';
+  children?: React.ReactNode;
 }
 
-export function ThemedView({ variant = 'background', style, ...props }: ThemedViewProps) {
+export function ThemedView({ variant = 'background', style, children, ...props }: ThemedViewProps) {
   const { theme } = useTheme();
   const bgColor = {
     background: theme.colors.background,
@@ -17,5 +18,9 @@ export function ThemedView({ variant = 'background', style, ...props }: ThemedVi
     surfaceVariant: theme.colors.surfaceVariant,
   }[variant];
 
-  return <View style={[{ backgroundColor: bgColor }, style]} {...props} />;
+  return (
+    <View style={[{ backgroundColor: bgColor }, style]} {...props}>
+      {children}
+    </View>
+  );
 }

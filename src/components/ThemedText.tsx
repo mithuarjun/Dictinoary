@@ -10,6 +10,7 @@ interface ThemedTextProps extends TextProps {
   color?: string;
   bold?: boolean;
   semiBold?: boolean;
+  children?: React.ReactNode;
 }
 
 export function ThemedText({
