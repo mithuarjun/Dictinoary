@@ -176,7 +176,7 @@ export function WordDetailScreen() {
               {word.partOfSpeech ? (
                 <View style={styles.posBadge}>
                   <ThemedText
-                    style={{ color: 'rgba(255,255,255,0.85)', fontSize: 10, fontWeight: fontWeight.semiBold, letterSpacing: 0.5, textTransform: 'uppercase' }}
+                    style={{ color: 'rgba(255,255,255,0.85)', fontSize: 10, fontWeight: fontWeight.semiBold, letterSpacing: 0.5, textTransform: 'uppercase', textAlign: 'center' }}
                   >
                     {word.partOfSpeech}
                   </ThemedText>
@@ -185,7 +185,7 @@ export function WordDetailScreen() {
 
               {/* Word */}
               <ThemedText
-                style={{ color: '#fff', fontSize: 24, fontWeight: fontWeight.bold, letterSpacing: -0.4, lineHeight: 30, marginBottom: 2 }}
+                style={{ color: '#fff', fontSize: 24, fontWeight: fontWeight.bold, letterSpacing: -0.4, lineHeight: 30, marginBottom: 2, textAlign: 'center' }}
               >
                 {word.word}
               </ThemedText>
@@ -193,7 +193,7 @@ export function WordDetailScreen() {
               {/* Phonetic */}
               {word.pronunciation ? (
                 <ThemedText
-                  style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, lineHeight: 16, marginBottom: spacing['3'] }}
+                  style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, lineHeight: 16, marginBottom: spacing['3'], textAlign: 'center' }}
                 >
                   {word.pronunciation}
                 </ThemedText>
@@ -353,16 +353,20 @@ const styles = StyleSheet.create({
   inner: {},
   heroCard: {
     borderRadius: borderRadius.xl,
-    padding: spacing['6'],
+    paddingVertical: spacing['6'],
+    paddingHorizontal: spacing['5'],
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: spacing['4'],
   },
   posBadge: {
+    alignSelf: 'center',
     marginBottom: spacing['2'],
   },
   listenBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     paddingHorizontal: spacing['4'],
     paddingVertical: spacing['2'],
     borderRadius: borderRadius.full,
