@@ -3,7 +3,7 @@
 // Seamless across Android SQLite (table: words) and Web Offline fallback.
 
 import { Platform } from 'react-native';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Asset } from 'expo-asset';
 import * as SQLite from 'expo-sqlite';
 
