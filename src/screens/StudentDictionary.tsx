@@ -1,2 +1,5 @@
 // ─── Student Dictionary Screen Export ─────────────────────────────────────────
-export { StudentDictionaryScreen, StudentDictionaryScreen as default } from './StudentDictionaryScreen';
+import { StudentDictionaryScreen } from './StudentDictionaryScreen';
+
+export { StudentDictionaryScreen };
+export default StudentDictionaryScreen;

@@ -16,6 +16,8 @@ export function StudentDictionaryScreen() {
   );
 }
 
+export default StudentDictionaryScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
