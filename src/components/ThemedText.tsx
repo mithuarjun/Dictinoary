@@ -43,38 +43,42 @@ export function ThemedText({
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: fontSize['3xl'],
+    fontSize: 22,
     fontWeight: fontWeight.bold,
-    letterSpacing: -0.5,
+    lineHeight: 28,
+    letterSpacing: -0.3,
   },
   subtitle: {
-    fontSize: fontSize.lg,
+    fontSize: 15,
     fontWeight: fontWeight.medium,
+    lineHeight: 22,
   },
   body: {
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.regular,
-    lineHeight: 24,
-  },
-  caption: {
-    fontSize: fontSize.sm,
+    fontSize: 14,
     fontWeight: fontWeight.regular,
     lineHeight: 20,
   },
+  caption: {
+    fontSize: 12,
+    fontWeight: fontWeight.regular,
+    lineHeight: 16,
+  },
   label: {
-    fontSize: fontSize.sm,
+    fontSize: 11,
     fontWeight: fontWeight.semiBold,
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
+    lineHeight: 15,
     textTransform: 'uppercase',
   },
   hindi: {
-    fontSize: fontSize.xl,
-    fontWeight: fontWeight.bold,
-    lineHeight: 32,
+    fontSize: 16,
+    fontWeight: fontWeight.medium,
+    lineHeight: 24,
   },
   word: {
-    fontSize: fontSize['4xl'],
+    fontSize: 26,
     fontWeight: fontWeight.extraBold,
-    letterSpacing: -1,
+    lineHeight: 32,
+    letterSpacing: -0.5,
   },
 });

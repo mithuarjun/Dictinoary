@@ -7,6 +7,7 @@ import {
   StyleSheet,
   StatusBar,
   useWindowDimensions,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -64,7 +65,10 @@ export function FavoritesScreen() {
         backgroundColor="transparent"
         translucent
       />
-      <SafeAreaView style={styles.flex} edges={['top', 'left', 'right']}>
+      <SafeAreaView
+        style={[styles.flex, { paddingTop: Platform.OS === 'android' ? 12 : 0 }]}
+        edges={['top', 'left', 'right']}
+      >
         <FlatList
           data={favorites}
           keyExtractor={(item) => String(item.id)}
@@ -86,10 +90,10 @@ export function FavoritesScreen() {
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <View style={styles.header}>
-              <ThemedText variant="title" style={[styles.title, { color: c.text }]}>
+              <ThemedText style={[styles.title, { color: c.text }]}>
                 Favorites
               </ThemedText>
-              <ThemedText variant="caption" style={{ color: c.textSecondary, marginTop: 2 }}>
+              <ThemedText style={{ color: c.textSecondary, fontSize: 12, marginTop: 1 }}>
                 {favorites.length > 0
                   ? `${favorites.length} saved word${favorites.length !== 1 ? 's' : ''}`
                   : 'Your saved vocabulary collection'}
@@ -116,18 +120,19 @@ export default FavoritesScreen;
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   listContent: {
-    paddingHorizontal: spacing['5'],
-    paddingTop: spacing['4'],
+    paddingHorizontal: spacing['4'],
+    paddingTop: spacing['2'],
     paddingBottom: spacing['12'],
     flexGrow: 1,
   },
   header: {
-    marginBottom: spacing['4'],
-    marginTop: spacing['2'],
+    marginBottom: spacing['3'],
+    marginTop: spacing['1'],
   },
   title: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: fontWeight.extraBold,
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
+    lineHeight: 28,
   },
 });

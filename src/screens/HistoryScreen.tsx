@@ -9,6 +9,7 @@ import {
   StatusBar,
   Alert,
   useWindowDimensions,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -81,7 +82,10 @@ export function HistoryScreen() {
         backgroundColor="transparent"
         translucent
       />
-      <SafeAreaView style={styles.flex} edges={['top', 'left', 'right']}>
+      <SafeAreaView
+        style={[styles.flex, { paddingTop: Platform.OS === 'android' ? 12 : 0 }]}
+        edges={['top', 'left', 'right']}
+      >
         <FlatList
           data={history}
           keyExtractor={(item) => String(item.id)}

@@ -169,31 +169,35 @@ export function WordDetailScreen() {
               style={[
                 styles.heroCard,
                 { backgroundColor: c.primary },
-                shadow.lg,
+                shadow.md,
               ]}
             >
               {/* Part of speech badge */}
-              <View style={styles.posBadge}>
-                <ThemedText
-                  style={{ color: 'rgba(255,255,255,0.75)', fontSize: fontSize.xs, fontWeight: fontWeight.semiBold, letterSpacing: 0.5, textTransform: 'uppercase' }}
-                >
-                  {word.partOfSpeech}
-                </ThemedText>
-              </View>
+              {word.partOfSpeech ? (
+                <View style={styles.posBadge}>
+                  <ThemedText
+                    style={{ color: 'rgba(255,255,255,0.85)', fontSize: 10, fontWeight: fontWeight.semiBold, letterSpacing: 0.5, textTransform: 'uppercase' }}
+                  >
+                    {word.partOfSpeech}
+                  </ThemedText>
+                </View>
+              ) : null}
 
               {/* Word */}
               <ThemedText
-                style={{ color: '#fff', fontSize: 38, fontWeight: fontWeight.extraBold, letterSpacing: -1, marginBottom: 4 }}
+                style={{ color: '#fff', fontSize: 24, fontWeight: fontWeight.bold, letterSpacing: -0.4, lineHeight: 30, marginBottom: 2 }}
               >
                 {word.word}
               </ThemedText>
 
               {/* Phonetic */}
-              <ThemedText
-                style={{ color: 'rgba(255,255,255,0.7)', fontSize: fontSize.sm, marginBottom: spacing['4'] }}
-              >
-                {word.pronunciation}
-              </ThemedText>
+              {word.pronunciation ? (
+                <ThemedText
+                  style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, lineHeight: 16, marginBottom: spacing['3'] }}
+                >
+                  {word.pronunciation}
+                </ThemedText>
+              ) : null}
 
               {/* Listen button */}
               <TouchableOpacity
@@ -205,10 +209,10 @@ export function WordDetailScreen() {
               >
                 <Ionicons
                   name={isSpeaking ? 'volume-high' : 'volume-medium-outline'}
-                  size={20}
+                  size={16}
                   color="#fff"
                 />
-                <ThemedText style={{ color: '#fff', marginLeft: 8, fontWeight: fontWeight.semiBold, fontSize: fontSize.md }}>
+                <ThemedText style={{ color: '#fff', marginLeft: 6, fontWeight: fontWeight.semiBold, fontSize: 13 }}>
                   {isSpeaking ? 'Playing…' : 'Listen'}
                 </ThemedText>
               </TouchableOpacity>
@@ -219,14 +223,14 @@ export function WordDetailScreen() {
               <SectionHeader title="Hindi Meaning" />
               <ThemedText
                 variant="hindi"
-                style={{ color: c.hindi, fontSize: 22, lineHeight: 34, fontWeight: fontWeight.semiBold }}
+                style={{ color: c.hindi, fontSize: 18, lineHeight: 28, fontWeight: fontWeight.semiBold }}
               >
                 {formatTopHindiMeanings(word.meaningHindi, 4)}
               </ThemedText>
               {word.definition ? (
                 <ThemedText
                   variant="body"
-                  style={{ color: c.textSecondary, marginTop: spacing['3'] }}
+                  style={{ color: c.textSecondary, marginTop: spacing['2'], fontSize: 13, lineHeight: 18 }}
                 >
                   {word.definition}
                 </ThemedText>

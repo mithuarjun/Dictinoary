@@ -8,6 +8,7 @@ import {
   StyleSheet,
   StatusBar,
   useWindowDimensions,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -16,7 +17,6 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useTheme } from '../hooks/useTheme';
 import { SearchBar } from '../components/SearchBar';
-import { SectionHeader } from '../components/SectionHeader';
 import { ThemedText } from '../components/ThemedText';
 import { ThemedView } from '../components/ThemedView';
 import { historyRepository } from '../repositories/HistoryRepository';
@@ -42,7 +42,7 @@ export function HomeScreen() {
   const loadRecentHistory = useCallback(async () => {
     try {
       const history = await historyRepository.getHistory();
-      setRecentHistory(history.slice(0, 10));
+      setRecentHistory(history.slice(0, 8));
     } catch (err) {
       console.error('[HomeScreen] loadRecentHistory error:', err);
     }
@@ -78,7 +78,10 @@ export function HomeScreen() {
         backgroundColor="transparent"
         translucent
       />
-      <SafeAreaView style={styles.flex} edges={['top', 'left', 'right']}>
+      <SafeAreaView
+        style={[styles.flex, { paddingTop: Platform.OS === 'android' ? 12 : 0 }]}
+        edges={['top', 'left', 'right']}
+      >
         <ScrollView
           contentContainerStyle={[
             styles.scrollContent,
@@ -91,13 +94,10 @@ export function HomeScreen() {
             {/* Header / Branding */}
             <View style={styles.header}>
               <View style={styles.titleContainer}>
-                <ThemedText variant="title" style={[styles.appTitle, { color: c.primary }]}>
+                <ThemedText style={[styles.appTitle, { color: c.primary }]}>
                   Gem Dictionary
                 </ThemedText>
-                <ThemedText
-                  variant="caption"
-                  style={[styles.appSubtitle, { color: c.textSecondary }]}
-                >
+                <ThemedText style={[styles.appSubtitle, { color: c.textSecondary }]}>
                   English → Hindi Offline Dictionary
                 </ThemedText>
               </View>
@@ -109,7 +109,7 @@ export function HomeScreen() {
                 accessibilityRole="button"
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Ionicons name="settings-outline" size={20} color={c.textSecondary} />
+                <Ionicons name="settings-outline" size={18} color={c.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -127,10 +127,7 @@ export function HomeScreen() {
             {/* Recent Searches */}
             <View style={styles.section}>
               <View style={styles.sectionHeaderRow}>
-                <ThemedText
-                  variant="label"
-                  style={[styles.sectionHeading, { color: c.textSecondary }]}
-                >
+                <ThemedText style={[styles.sectionHeading, { color: c.textSecondary }]}>
                   Recent Searches
                 </ThemedText>
 
@@ -141,9 +138,7 @@ export function HomeScreen() {
                     accessibilityRole="button"
                     accessibilityLabel="View all search history"
                   >
-                    <ThemedText
-                      style={[styles.viewAllText, { color: c.primary }]}
-                    >
+                    <ThemedText style={[styles.viewAllText, { color: c.primary }]}>
                       View All
                     </ThemedText>
                   </TouchableOpacity>
@@ -152,48 +147,52 @@ export function HomeScreen() {
 
               {recentHistory.length > 0 ? (
                 <View style={styles.chipsWrap}>
-                  {recentHistory.map((item) => (
-                    <TouchableOpacity
-                      key={item.id}
-                      style={[
-                        styles.chip,
-                        {
-                          backgroundColor: c.card,
-                          borderColor: c.border,
-                        },
-                        shadow.sm,
-                      ]}
-                      onPress={() => handleWordSelect(item.wordId, item.word.word)}
-                      activeOpacity={0.7}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Recent word: ${item.word.word}`}
-                    >
-                      <Ionicons
-                        name="time-outline"
-                        size={14}
-                        color={c.primary}
-                        style={{ marginRight: 6 }}
-                      />
-                      <ThemedText
-                        style={[styles.chipText, { color: c.text }]}
-                        semiBold
+                  {recentHistory.map((item) => {
+                    const cleanMeaning = formatTopHindiMeanings(item.word.meaningHindi, 1);
+                    return (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={[
+                          styles.chip,
+                          {
+                            backgroundColor: c.card,
+                            borderColor: c.border,
+                          },
+                          shadow.sm,
+                        ]}
+                        onPress={() => handleWordSelect(item.wordId, item.word.word)}
+                        activeOpacity={0.7}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Recent word: ${item.word.word}`}
                       >
-                        {item.word.word}
-                      </ThemedText>
-                      {item.word.meaningHindi ? (
+                        <Ionicons
+                          name="time-outline"
+                          size={13}
+                          color={c.primary}
+                          style={{ marginRight: 5 }}
+                        />
                         <ThemedText
-                          style={[styles.chipHindi, { color: c.textTertiary }]}
+                          style={[styles.chipText, { color: c.text }]}
                           numberOfLines={1}
+                          semiBold
                         >
-                          • {formatTopHindiMeanings(item.word.meaningHindi, 1)}
+                          {item.word.word}
                         </ThemedText>
-                      ) : null}
-                    </TouchableOpacity>
-                  ))}
+                        {cleanMeaning ? (
+                          <ThemedText
+                            style={[styles.chipHindi, { color: c.textTertiary }]}
+                            numberOfLines={1}
+                          >
+                            • {cleanMeaning}
+                          </ThemedText>
+                        ) : null}
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               ) : (
-                <View style={[styles.emptyRecentBox, { backgroundColor: c.surfaceVariant + '60', borderColor: c.border }]}>
-                  <Ionicons name="search-outline" size={24} color={c.textTertiary} />
+                <View style={[styles.emptyRecentBox, { backgroundColor: c.surfaceVariant + '50', borderColor: c.border }]}>
+                  <Ionicons name="search-outline" size={20} color={c.textTertiary} />
                   <ThemedText style={[styles.emptyRecentText, { color: c.textSecondary }]}>
                     No recent searches
                   </ThemedText>
@@ -217,7 +216,7 @@ export function HomeScreen() {
               accessibilityLabel="Open Search History"
             >
               <View style={[styles.quickAccessIcon, { backgroundColor: c.primary + '15' }]}>
-                <Ionicons name="time" size={22} color={c.primary} />
+                <Ionicons name="time" size={18} color={c.primary} />
               </View>
               <View style={styles.quickAccessContent}>
                 <ThemedText style={[styles.quickAccessTitle, { color: c.text }]} semiBold>
@@ -227,17 +226,14 @@ export function HomeScreen() {
                   Review previously looked up words & definitions
                 </ThemedText>
               </View>
-              <Ionicons name="chevron-forward" size={18} color={c.textTertiary} />
+              <Ionicons name="chevron-forward" size={16} color={c.textTertiary} />
             </TouchableOpacity>
 
             {/* Offline Badge Footer */}
             <View style={styles.offlineFooter}>
               <View style={[styles.offlineDot, { backgroundColor: '#10B981' }]} />
-              <Ionicons name="shield-checkmark" size={14} color={c.textTertiary} style={{ marginRight: 4 }} />
-              <ThemedText
-                variant="caption"
-                style={[styles.offlineText, { color: c.textTertiary }]}
-              >
+              <Ionicons name="shield-checkmark" size={13} color={c.textTertiary} style={{ marginRight: 4 }} />
+              <ThemedText style={[styles.offlineText, { color: c.textTertiary }]}>
                 100% Offline • 65,000+ Words • Ad-Free
               </ThemedText>
             </View>
@@ -253,58 +249,61 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   scrollContent: {
-    paddingHorizontal: spacing['5'],
-    paddingTop: spacing['4'],
+    paddingHorizontal: spacing['4'],
+    paddingTop: spacing['2'],
   },
   inner: {},
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing['5'],
-    marginTop: spacing['2'],
+    marginBottom: spacing['4'],
+    marginTop: spacing['1'],
   },
   titleContainer: {
     flex: 1,
   },
   appTitle: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: fontWeight.extraBold,
-    letterSpacing: -0.6,
+    letterSpacing: -0.4,
+    lineHeight: 28,
   },
   appSubtitle: {
-    fontSize: fontSize.sm,
-    marginTop: 2,
-    fontWeight: fontWeight.medium,
+    fontSize: 12,
+    marginTop: 1,
+    fontWeight: fontWeight.regular,
+    lineHeight: 16,
   },
   settingsBtn: {
-    width: 42,
-    height: 42,
+    width: 36,
+    height: 36,
     borderRadius: borderRadius.full,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   searchSection: {
-    marginBottom: spacing['6'],
+    marginBottom: spacing['4'],
   },
   section: {
-    marginBottom: spacing['6'],
+    marginBottom: spacing['4'],
   },
   sectionHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing['3'],
+    marginBottom: spacing['2'],
   },
   sectionHeading: {
-    fontSize: fontSize.xs,
+    fontSize: 11,
     fontWeight: fontWeight.bold,
-    letterSpacing: 0.8,
+    letterSpacing: 0.6,
     textTransform: 'uppercase',
+    lineHeight: 15,
   },
   viewAllText: {
-    fontSize: fontSize.xs,
+    fontSize: 12,
     fontWeight: fontWeight.semiBold,
   },
   chipsWrap: {
@@ -316,49 +315,51 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing['3'],
-    paddingVertical: spacing['2'],
+    paddingVertical: 6,
     borderRadius: borderRadius.full,
     borderWidth: 1,
     maxWidth: '100%',
   },
   chipText: {
-    fontSize: fontSize.sm,
+    fontSize: 13,
+    lineHeight: 18,
   },
   chipHindi: {
-    fontSize: fontSize.xs,
-    marginLeft: 4,
-    maxWidth: 120,
+    fontSize: 11,
+    lineHeight: 16,
+    marginLeft: 3,
+    maxWidth: 90,
   },
   emptyRecentBox: {
-    borderRadius: borderRadius.lg,
+    borderRadius: borderRadius.md,
     borderWidth: 1,
-    paddingVertical: spacing['6'],
-    paddingHorizontal: spacing['4'],
+    paddingVertical: spacing['4'],
+    paddingHorizontal: spacing['3'],
     alignItems: 'center',
     justifyContent: 'center',
   },
   emptyRecentText: {
-    fontSize: fontSize.sm,
+    fontSize: 13,
     fontWeight: fontWeight.semiBold,
-    marginTop: spacing['2'],
+    marginTop: spacing['1'],
   },
   emptyRecentSub: {
-    fontSize: fontSize.xs,
+    fontSize: 11,
     textAlign: 'center',
     marginTop: 2,
   },
   quickAccessCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing['4'],
-    borderRadius: borderRadius.xl,
+    padding: spacing['3'],
+    borderRadius: borderRadius.lg,
     borderWidth: 1,
-    marginBottom: spacing['6'],
+    marginBottom: spacing['4'],
   },
   quickAccessIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: borderRadius.lg,
+    width: 36,
+    height: 36,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing['3'],
@@ -367,17 +368,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   quickAccessTitle: {
-    fontSize: fontSize.md,
+    fontSize: 14,
+    lineHeight: 20,
   },
   quickAccessSubtitle: {
-    fontSize: fontSize.xs,
-    marginTop: 2,
+    fontSize: 11,
+    lineHeight: 15,
+    marginTop: 1,
   },
   offlineFooter: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing['2'],
+    paddingVertical: spacing['1'],
   },
   offlineDot: {
     width: 6,
@@ -386,7 +389,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   offlineText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: fontWeight.medium,
   },
 });

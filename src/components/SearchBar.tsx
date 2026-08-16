@@ -27,7 +27,7 @@ export function SearchBar({
   onChangeText,
   onSubmit,
   onClear,
-  placeholder = 'Search an English word…',
+  placeholder = 'Search an English word...',
   autoFocus = false,
 }: SearchBarProps) {
   const { theme } = useTheme();
@@ -39,12 +39,12 @@ export function SearchBar({
       style={[
         styles.container,
         { backgroundColor: c.searchBackground, borderColor: c.border },
-        shadow.md,
+        shadow.sm,
       ]}
     >
       <Ionicons
         name="search"
-        size={20}
+        size={18}
         color={c.placeholder}
         style={styles.icon}
         accessibilityLabel="Search icon"
@@ -76,29 +76,31 @@ export function SearchBar({
           accessibilityLabel="Clear search"
           accessibilityRole="button"
         >
-          <Ionicons name="close-circle" size={20} color={c.placeholder} />
+          <Ionicons name="close-circle" size={18} color={c.placeholder} />
         </TouchableOpacity>
       )}
     </View>
   );
 }
 
+export default SearchBar;
+
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: borderRadius.xl,
-    borderWidth: 1.5,
-    paddingHorizontal: spacing['4'],
-    paddingVertical: Platform.OS === 'ios' ? spacing['3'] : spacing['2'],
-    minHeight: 52,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    paddingHorizontal: spacing['3'],
+    paddingVertical: Platform.OS === 'ios' ? spacing['2'] : spacing['1'],
+    minHeight: 46,
   },
   icon: {
     marginRight: spacing['2'],
   },
   input: {
     flex: 1,
-    fontSize: fontSize.lg,
+    fontSize: 15,
     paddingVertical: 0,
   },
   clearBtn: {

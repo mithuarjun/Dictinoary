@@ -8,7 +8,7 @@ import { useTheme } from '../hooks/useTheme';
 import { ThemedText } from './ThemedText';
 import { borderRadius, spacing, shadow } from '../theme/spacing';
 import { Word } from '../types';
-import { fontSize, fontWeight } from '../theme/typography';
+import { fontWeight } from '../theme/typography';
 import { formatTopHindiMeanings } from '../utils/formatDictionaryMeanings';
 
 interface WordListItemProps {
@@ -42,7 +42,7 @@ export function WordListItem({ word, onPress }: WordListItemProps) {
               {word.word}
             </ThemedText>
             {word.pronunciation ? (
-              <ThemedText variant="caption" style={[styles.pronunciation, { color: c.textTertiary }]}>
+              <ThemedText style={[styles.pronunciation, { color: c.textTertiary }]}>
                 {word.pronunciation}
               </ThemedText>
             ) : null}
@@ -50,7 +50,6 @@ export function WordListItem({ word, onPress }: WordListItemProps) {
 
           {/* Hindi Meanings (Maximum 4, clean and readable) */}
           <ThemedText
-            variant="hindi"
             style={[styles.hindi, { color: c.primary }]}
             numberOfLines={2}
             ellipsizeMode="tail"
@@ -71,7 +70,7 @@ export function WordListItem({ word, onPress }: WordListItemProps) {
         {/* Navigation arrow */}
         <Ionicons
           name="chevron-forward"
-          size={18}
+          size={16}
           color={c.textTertiary}
           style={styles.chevron}
         />
@@ -84,16 +83,16 @@ export default WordListItem;
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: borderRadius.lg,
+    borderRadius: borderRadius.md,
     borderWidth: 1,
-    marginBottom: spacing['3'],
+    marginBottom: spacing['2'],
     overflow: 'hidden',
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing['4'],
-    paddingVertical: spacing['3'],
+    paddingHorizontal: spacing['3'] + 2,
+    paddingVertical: spacing['2'] + 2,
   },
   left: {
     flex: 1,
@@ -104,34 +103,37 @@ const styles = StyleSheet.create({
     gap: spacing['2'],
   },
   word: {
-    fontSize: 20,
+    fontSize: 17,
+    lineHeight: 22,
     fontWeight: fontWeight.bold,
-    letterSpacing: -0.3,
+    letterSpacing: -0.2,
   },
   pronunciation: {
-    fontSize: fontSize.xs,
+    fontSize: 11,
+    lineHeight: 15,
   },
   hindi: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 14,
+    lineHeight: 20,
     fontWeight: fontWeight.medium,
-    marginTop: 4,
-    marginBottom: 4,
+    marginTop: 2,
+    marginBottom: 2,
   },
   badge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: spacing['2'],
-    paddingVertical: 2,
-    borderRadius: borderRadius.sm,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: borderRadius.xs,
     marginTop: 2,
   },
   badgeText: {
     fontSize: 10,
+    lineHeight: 14,
     fontWeight: fontWeight.semiBold,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   chevron: {
-    marginLeft: spacing['3'],
+    marginLeft: spacing['2'],
   },
 });
