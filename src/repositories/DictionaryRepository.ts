@@ -1,5 +1,5 @@
 // ─── Dictionary Repository ────────────────────────────────────────────────────
-// High-performance SQLite indexed search for 65,000+ words.
+// High-performance SQLite indexed search & prefix autocomplete for 65,000+ words.
 // Does NOT load all rows into memory. Uses SQL LIMIT and indexes.
 
 import { getDatabase, isWeb } from '../database/database';
@@ -8,6 +8,7 @@ import { studentDictionaryEntries } from '../data/studentDictionaryData';
 
 export interface DictionaryRepository {
   searchWords(query: string, limit?: number): Promise<Word[]>;
+  getAutocompleteSuggestions(query: string, limit?: number): Promise<Word[]>;
   getWordById(id: number): Promise<Word | null>;
   getWordByText(word: string): Promise<Word | null>;
   getWordOfDay(): Promise<Word | null>;
@@ -58,25 +59,22 @@ const webWords: Word[] = studentDictionaryEntries.map((w, index) => ({
 
 class SQLiteDictionaryRepository implements DictionaryRepository {
   async searchWords(query: string, limit: number = 30): Promise<Word[]> {
-    if (!query || query.trim().length === 0) return [];
     const normalized = query.trim().toLowerCase();
+    if (!normalized) return [];
 
     if (isWeb) {
-      // Web search matching identical exact/prefix/partial ordering
-      const matched = webWords.filter((w) =>
-        w.word_normalized ? w.word_normalized.includes(normalized) : w.word.toLowerCase().includes(normalized)
-      );
-
-      return matched
+      return webWords
+        .filter((w) => {
+          const wNorm = (w.word_normalized || w.word.toLowerCase());
+          const hNorm = (w.meaningHindi || '');
+          return wNorm.includes(normalized) || hNorm.includes(query.trim());
+        })
         .sort((a, b) => {
-          const aNorm = a.word_normalized || a.word.toLowerCase();
-          const bNorm = b.word_normalized || b.word.toLowerCase();
+          const aNorm = (a.word_normalized || a.word.toLowerCase());
+          const bNorm = (b.word_normalized || b.word.toLowerCase());
+          if (aNorm === normalized) return -1;
+          if (bNorm === normalized) return 1;
 
-          // Exact match priority
-          if (aNorm === normalized && bNorm !== normalized) return -1;
-          if (bNorm === normalized && aNorm !== normalized) return 1;
-
-          // Prefix match priority
           const aPrefix = aNorm.startsWith(normalized);
           const bPrefix = bNorm.startsWith(normalized);
           if (aPrefix && !bPrefix) return -1;
@@ -109,6 +107,51 @@ class SQLiteDictionaryRepository implements DictionaryRepository {
          word ASC
        LIMIT ?`,
       [prefixParam, containsParam, normalized, prefixParam, limit]
+    );
+
+    return rows.map(mapRowToWord);
+  }
+
+  async getAutocompleteSuggestions(query: string, limit: number = 10): Promise<Word[]> {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return [];
+
+    if (isWeb) {
+      return webWords
+        .filter((w) => {
+          const wNorm = (w.word_normalized || w.word.toLowerCase());
+          return wNorm.startsWith(normalized) && !w.is_linguistic_entry;
+        })
+        .sort((a, b) => {
+          const aNorm = (a.word_normalized || a.word.toLowerCase());
+          const bNorm = (b.word_normalized || b.word.toLowerCase());
+          if (aNorm === normalized) return -1;
+          if (bNorm === normalized) return 1;
+          if (aNorm.length !== bNorm.length) return aNorm.length - bNorm.length;
+          return aNorm.localeCompare(bNorm);
+        })
+        .slice(0, limit);
+    }
+
+    const db = await getDatabase();
+    if (!db) return [];
+
+    const prefixParam = `${normalized}%`;
+
+    const rows = await db.getAllAsync<WordRow>(
+      `SELECT id, word, word_normalized, hindi_meaning, part_of_speech, is_linguistic_entry
+       FROM words
+       WHERE word_normalized LIKE ? AND is_linguistic_entry = 0
+       ORDER BY
+         CASE
+           WHEN word_normalized = ? THEN 0
+           WHEN word_normalized LIKE ? THEN 1
+           ELSE 2
+         END,
+         length(word) ASC,
+         word_normalized ASC
+       LIMIT ?`,
+      [prefixParam, normalized, prefixParam, limit]
     );
 
     return rows.map(mapRowToWord);
